@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     FormControl,
@@ -8,7 +9,9 @@ import {
     OutlinedInput,
     TextField,
     Typography,
+    Button,
 } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import React, { useState } from "react";
@@ -18,6 +21,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { AppLoadingButton } from "../../global/AppLoadingButton/AppLoadingButton";
+import { SetAvatar } from "components/Avatar/SetAvatar";
+import { AvatarWindow } from "../../Avatar/AvatarWindow";
+
+import { formValidation } from "./formValidation";
+import { instance } from "utils/axios";
 
 export const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -30,49 +38,41 @@ export const Register = () => {
     };
 
     const [values, setValues] = useState({
-        username: "",
+        name: "",
         email: "",
         password: "",
         confirmPassword: "",
     });
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         setValues({ ...values, [event.target.name]: event.target.value });
     };
 
-    const handleValidation = () => {
-        const { password, confirmPassword, username, email } = values;
-        if (password !== confirmPassword) {
-            toast.error(
-                "Password and confirm password should be same.",
-                toastOptions,
-            );
-            return false;
-        } else if (username.length < 3) {
-            toast.error(
-                "Username should be greater than 3 characters.",
-                toastOptions,
-            );
-            return false;
-        } else if (password.length < 8) {
-            toast.error(
-                "Password should be equal or greater than 8 characters.",
-                toastOptions,
-            );
-            return false;
-        } else if (email === "") {
-            toast.error("Email is required.", toastOptions);
-            return false;
-        }
-
-        return true;
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (handleValidation()) {
-            const { email, username, password } = values;
-            console.log("Form Data:", values);
+        setLoading(true);
+        if (formValidation(values, toastOptions)) {
+            const { email, name, password } = values;
+
+            const data = {
+                email,
+                name,
+                password,
+            };
+
+            try {
+                const res = await instance.post("user/register", data);
+
+                console.log(res);
+                localStorage.setItem("userInfo", JSON.stringify(res));
+                toast.success("Registration Successful", toastOptions);
+                setLoading(false);
+                navigate("/chat");
+            } catch (error) {
+                console.log(error);
+            }
         }
     };
 
@@ -91,7 +91,7 @@ export const Register = () => {
                         fontFamily="Poppins"
                         textAlign="center"
                     >
-                        Sing up
+                        Sign up
                     </Typography>
                     <Typography
                         variant="body1"
@@ -104,7 +104,7 @@ export const Register = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
-                                name="username"
+                                name="name"
                                 autoComplete="off"
                                 fullWidth
                                 label="Name"
@@ -198,7 +198,7 @@ export const Register = () => {
                         sx={{ marginTop: 2, marginBottom: 2, width: "60%" }}
                         variant="contained"
                     >
-                        Sing up
+                        Sign up
                     </AppLoadingButton>
                 </StyledBox>
             </form>

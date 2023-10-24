@@ -1,10 +1,8 @@
 import { styled } from "@mui/material/styles";
-import { Theme } from "@mui/material";
 import { colors } from "theme";
+import { Button, Theme } from "@mui/material";
 
-import LoadingButton from "@mui/lab/LoadingButton";
-
-export const AppLoadingButton = styled(LoadingButton)(({ theme }) => ({
+export const AppButton = styled(Button)(({ theme }) => ({
     borderRadius: "4px",
     backgroundColor: colors.blueAccent[500],
     boxShadow: `0px 1px 7px ${colors.blueAccent[700]}`,
