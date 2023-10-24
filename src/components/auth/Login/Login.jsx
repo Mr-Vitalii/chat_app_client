@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     FormControl,
@@ -17,7 +18,10 @@ import { StyledBox } from "../styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { AppLoadingButton } from "../../global/AppLoadingButton/AppLoadingButton";
+import { AppLoadingButton } from "components/global/AppLoadingButton/AppLoadingButton";
+
+import { formValidation } from "./formValidation";
+import { instance } from "utils/axios";
 
 export const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -34,27 +38,47 @@ export const Login = () => {
         password: "",
     });
 
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
     const handleChange = (event) => {
         setValues({ ...values, [event.target.name]: event.target.value });
     };
 
-    const validateForm = () => {
-        const { username, password } = values;
-        if (username === "") {
-            toast.error("Email and Password is required.", toastOptions);
-            return false;
-        } else if (password === "") {
-            toast.error("Email and Password is required.", toastOptions);
-            return false;
-        }
-        return true;
-    };
+    // const validateForm = () => {
+    //     const { username, password } = values;
+    //     if (username === "") {
+    //         toast.error("Email and Password is required.", toastOptions);
+    //         return false;
+    //     } else if (password === "") {
+    //         toast.error("Email and Password is required.", toastOptions);
+    //         return false;
+    //     }
+    //     return true;
+    // };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validateForm()) {
+        setLoading(true);
+        if (formValidation(values, toastOptions)) {
             const { email, password } = values;
-            console.log("Form Data:", values);
+
+            const data = {
+                email,
+                password,
+            };
+
+            try {
+                const res = await instance.post("user/login", data);
+
+                console.log(res);
+                localStorage.setItem("userInfo", JSON.stringify(res));
+                toast.success("Registration Successful", toastOptions);
+                setLoading(false);
+                navigate("/chat");
+            } catch (error) {
+                console.log(error);
+            }
         }
     };
 
