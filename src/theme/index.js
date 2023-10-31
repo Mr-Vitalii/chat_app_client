@@ -113,7 +113,7 @@ export const themeSettings = (mode) => {
         components: {
             MuiAppBar: {
                 styleOverrides: {
-                    root: (theme) => {
+                    root: ({ theme }) => {
                         return {
                             backgroundColor: `${theme.palette.primary.main}`,
                             backgroundImage: "none",

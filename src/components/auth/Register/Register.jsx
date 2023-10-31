@@ -65,8 +65,7 @@ export const Register = () => {
             try {
                 const res = await instance.post("user/register", data);
 
-                console.log(res);
-                localStorage.setItem("userInfo", JSON.stringify(res));
+                localStorage.setItem("userInfo", JSON.stringify(res.data));
                 toast.success("Registration Successful", toastOptions);
                 setLoading(false);
                 navigate("/chat");
