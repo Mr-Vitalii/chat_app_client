@@ -8,8 +8,8 @@ export const BoxStyled = styled(Box)(({ theme }) => ({
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: "background.paper",
+    backgroundColor: theme.palette.borderColor.main,
     border: "2px solid #000",
     boxShadow: 24,
-    p: 4,
+    padding: "20px",
 }));

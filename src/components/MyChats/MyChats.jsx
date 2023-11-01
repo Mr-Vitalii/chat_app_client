@@ -14,14 +14,16 @@ import SearchIcon from "@mui/icons-material/Search";
 import { ChatLoading } from "../ChatLoading/ChatLoading";
 
 import { getSender } from "config/ChatLogics";
+import { GroupChatModal } from "../GroupChatModal/GroupChatModal";
 
-export const MyChats = () => {
+export const MyChats = ({ fetchAgain, setFetchAgain }) => {
     const [loggedUser, setLoggedUser] = useState();
+
+    const [openModal, setOpenModal] = useState(false);
+    const handleOpen = () => setOpenModal(true);
 
     const { user, selectedChat, setSelectedChat, chats, setChats, isMobile } =
         ChatState();
-
-    console.log(selectedChat);
 
     const theme = useTheme();
 
@@ -50,24 +52,22 @@ export const MyChats = () => {
         setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
         fetchChats();
         // eslint-disable-next-line
-    }, []);
+    }, [fetchAgain]);
 
     return (
         <>
             <Box
                 sx={{
                     display: "flex",
+                    width: "31%",
                     [theme.breakpoints.down("md")]: {
                         display: selectedChat ? "none" : "flex",
+                        width: "100%",
                     },
                     flexDirection: "column",
                     alignItems: "center",
                     p: 3,
                     backgroundColor: "green",
-                    width: "100%",
-                    [theme.breakpoints.up("md")]: {
-                        width: "31%",
-                    },
                     borderRadius: "10px",
                     borderWidth: "1px",
                 }}
@@ -75,9 +75,10 @@ export const MyChats = () => {
                 <Box
                     sx={{
                         pb: 3,
-                        px: 3,
+                        px: 2,
                         fontSize: "28px",
                         [theme.breakpoints.up("md")]: {
+                            px: 3,
                             fontSize: "30px",
                         },
                         fontFamily: "Work sans",
@@ -87,13 +88,12 @@ export const MyChats = () => {
                         alignItems: "center",
                     }}
                 >
-                    <Typography> My Chats</Typography>
-
+                    <Typography sx={{ mr: 1 }}> My Chats</Typography>
                     <Button
                         variant="contained"
                         sx={{
                             display: "flex",
-                            fontSize: "17px",
+                            fontSize: "14px",
                             [theme.breakpoints.up("md")]: {
                                 fontSize: "10px",
                             },
@@ -102,6 +102,7 @@ export const MyChats = () => {
                             },
                         }}
                         endIcon={<AddIcon />}
+                        onClick={handleOpen}
                     >
                         New Group Chat
                     </Button>
@@ -172,6 +173,11 @@ export const MyChats = () => {
                     )}
                 </Box>
             </Box>
+            <GroupChatModal
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                handleOpen={handleOpen}
+            />
             <ToastContainer />
         </>
     );

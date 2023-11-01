@@ -1,5 +1,33 @@
+import { Box, useTheme } from "@mui/material";
 import React from "react";
 
-export const Chatbox = () => {
-    return <div>Chatbox</div>;
+import { ChatState } from "context/ChatProvider";
+import { SingleChat } from "../SingleChat/SingleChat";
+
+export const Chatbox = ({ fetchAgain, setFetchAgain }) => {
+    const { selectedChat } = ChatState();
+
+    const theme = useTheme();
+
+    return (
+        <Box
+            sx={{
+                width: "68%",
+                display: "flex",
+                [theme.breakpoints.down("md")]: {
+                    width: "100%",
+                    display: selectedChat ? "flex" : "none",
+                },
+                flexDirection: "column",
+                alignItems: "center",
+                p: 3,
+                backgroundColor: "white",
+
+                borderRadius: "10px",
+                borderWidth: "1px",
+            }}
+        >
+            <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+        </Box>
+    );
 };

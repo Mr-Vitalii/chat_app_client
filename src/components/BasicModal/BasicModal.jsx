@@ -3,7 +3,7 @@ import { BoxStyled } from "./styled-components";
 
 import { Backdrop, Modal, Fade } from "@mui/material";
 
-export const ProfileModal = ({ open, setOpen, children }) => {
+export const BasicModal = ({ open, setOpen, children }) => {
     // const [open, setOpen] = useState(false);
     // const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
