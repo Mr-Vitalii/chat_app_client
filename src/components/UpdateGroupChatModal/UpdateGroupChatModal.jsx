@@ -4,6 +4,7 @@ import { ChatState } from "context/ChatProvider";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import { Box, TextField, Typography, useTheme } from "@mui/material";
 import { UserBadgeItem } from "../UserBadgeItem/UserBadgeItem";
 import { AppLoadingButton } from "../global/AppLoadingButton/AppLoadingButton";
@@ -25,6 +26,7 @@ export const UpdateGroupChatModal = ({
     setOpenModal,
     fetchAgain,
     setFetchAgain,
+    fetchMessages,
 }) => {
     const [groupChatName, setGroupChatName] = useState("");
     const [search, setSearch] = useState("");
@@ -115,7 +117,7 @@ export const UpdateGroupChatModal = ({
 
             user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
             setFetchAgain(!fetchAgain);
-            // fetchMessages();
+            fetchMessages();
             setLoading(false);
         } catch (error) {
             toast.error(`${error.response.data.message}`, toastOptions);

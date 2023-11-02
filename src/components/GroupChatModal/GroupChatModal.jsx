@@ -42,7 +42,7 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
             const { data } = await instanceAuth.get(
                 `user/users?search=${query}`,
             );
-            console.log(data);
+
             setLoading(false);
             setSearchResult(data);
         } catch (error) {

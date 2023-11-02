@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ChatState } from "context/ChatProvider";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import {
+    Box,
+    IconButton,
+    TextField,
+    Typography,
+    useTheme,
+} from "@mui/material";
 import { ProfileModal } from "../ProfileModal/ProfileModal";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -10,6 +19,23 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getSender, getSenderFull } from "config/ChatLogics";
 import { UserModal } from "../UserModal/UserModal";
 import { UpdateGroupChatModal } from "../UpdateGroupChatModal/UpdateGroupChatModal";
+import { ChatLoading } from "../ChatLoading/ChatLoading";
+
+import { instance, instanceAuth, setAuthHeader } from "utils/axios";
+import { LoadingComponent } from "../LoadingComponent/LoadingComponent";
+
+import CircularProgress from "@mui/material/CircularProgress";
+
+import "components/styles.css";
+import { ScrollableChat } from "../ScrollableChat/ScrollableChat";
+
+const toastOptions = {
+    position: "bottom-right",
+    autoClose: 5000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+};
 
 export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const {
@@ -20,6 +46,10 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setNotification,
     } = ChatState();
 
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [newMessage, setNewMessage] = useState("");
+
     const theme = useTheme();
 
     const [openUserModal, setOpenUserModal] = useState(false);
@@ -27,6 +57,68 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     const [openUpdateGroupModal, setOpenUpdateGroupModal] = useState(false);
     const handleUpdateGroupModalOpen = () => setOpenUpdateGroupModal(true);
+
+    const fetchMessages = async () => {
+        if (!selectedChat) return;
+
+        try {
+            setAuthHeader(user.token);
+
+            setLoading(true);
+
+            const { data } = await instanceAuth.get(
+                `message/${selectedChat._id}`,
+            );
+
+            console.log(messages);
+            setMessages(data);
+            setLoading(false);
+
+            // socket.emit("join chat", selectedChat._id);
+        } catch (error) {
+            toast.error("Failed to Load the Messages", toastOptions);
+        }
+    };
+
+    useEffect(() => {
+        fetchMessages();
+    }, [selectedChat]);
+
+    const sendMessage = async (event) => {
+        if (event.key === "Enter" && newMessage) {
+            // socket.emit("stop typing", selectedChat._id);
+            try {
+                const config = {
+                    headers: {
+                        "Content-type": "application/json",
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                };
+
+                setNewMessage("");
+
+                const { data } = await instance.post(
+                    "message",
+                    {
+                        content: newMessage,
+                        chatId: selectedChat,
+                    },
+                    config,
+                );
+
+                console.log(data);
+
+                // socket.emit("new message", data);
+                setMessages([...messages, data]);
+            } catch (error) {
+                toast.error("Failed to send the Message", toastOptions);
+            }
+        }
+    };
+
+    const typingHandler = (e) => {
+        setNewMessage(e.target.value);
+    };
 
     return (
         <>
@@ -113,7 +205,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     <Box
                         sx={{
                             display: "flex",
-                            flexDirection: "flex-end",
+                            flexDirection: "column",
                             justifyContent: "flex-end",
                             p: 3,
                             backgroundColor: "#e9a5a5",
@@ -122,7 +214,24 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             borderRadius: "10px",
                             overflowY: "hidden",
                         }}
-                    ></Box>
+                    >
+                        {loading ? (
+                            <CircularProgress />
+                        ) : (
+                            <div className="messages">
+                                <ScrollableChat messages={messages} />
+                            </div>
+                        )}
+                        <Box>
+                            <TextField
+                                placeholder="Enter a message.."
+                                fullWidth
+                                value={newMessage}
+                                onChange={typingHandler}
+                                onKeyDown={sendMessage}
+                            />
+                        </Box>
+                    </Box>
                     <UserModal
                         openModal={openUserModal}
                         setOpenModal={setOpenUserModal}
@@ -133,6 +242,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         setOpenModal={setOpenUpdateGroupModal}
                         fetchAgain={fetchAgain}
                         setFetchAgain={setFetchAgain}
+                        fetchMessages={fetchMessages}
                     />
                 </>
             ) : (
