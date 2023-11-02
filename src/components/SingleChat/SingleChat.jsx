@@ -131,6 +131,8 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     <UpdateGroupChatModal
                         openModal={openUpdateGroupModal}
                         setOpenModal={setOpenUpdateGroupModal}
+                        fetchAgain={fetchAgain}
+                        setFetchAgain={setFetchAgain}
                     />
                 </>
             ) : (
