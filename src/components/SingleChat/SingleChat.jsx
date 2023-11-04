@@ -8,7 +8,6 @@ import {
     Typography,
     useTheme,
 } from "@mui/material";
-import { ProfileModal } from "../ProfileModal/ProfileModal";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,18 +15,24 @@ import "react-toastify/dist/ReactToastify.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
+import io from "socket.io-client";
+
 import { getSender, getSenderFull } from "config/ChatLogics";
 import { UserModal } from "../UserModal/UserModal";
 import { UpdateGroupChatModal } from "../UpdateGroupChatModal/UpdateGroupChatModal";
-import { ChatLoading } from "../ChatLoading/ChatLoading";
 
 import { instance, instanceAuth, setAuthHeader } from "utils/axios";
-import { LoadingComponent } from "../LoadingComponent/LoadingComponent";
 
 import CircularProgress from "@mui/material/CircularProgress";
 
+import Lottie from "react-lottie";
+import animationData from "assets/animations/TypingIndicator.json";
+
 import "components/styles.css";
 import { ScrollableChat } from "../ScrollableChat/ScrollableChat";
+
+const ENDPOINT = "http://localhost:5000";
+var socket, selectedChatCompare;
 
 const toastOptions = {
     position: "bottom-right",
@@ -35,6 +40,14 @@ const toastOptions = {
     pauseOnHover: true,
     draggable: true,
     theme: "dark",
+};
+const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+        preserveAspectRatio: "xMidYMid slice",
+    },
 };
 
 export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -49,6 +62,10 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [newMessage, setNewMessage] = useState("");
+    const [socketConnected, setSocketConnected] = useState(false);
+
+    const [typing, setTyping] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
 
     const theme = useTheme();
 
@@ -74,19 +91,15 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             setMessages(data);
             setLoading(false);
 
-            // socket.emit("join chat", selectedChat._id);
+            socket.emit("join chat", selectedChat._id);
         } catch (error) {
             toast.error("Failed to Load the Messages", toastOptions);
         }
     };
 
-    useEffect(() => {
-        fetchMessages();
-    }, [selectedChat]);
-
     const sendMessage = async (event) => {
         if (event.key === "Enter" && newMessage) {
-            // socket.emit("stop typing", selectedChat._id);
+            socket.emit("stop typing", selectedChat._id);
             try {
                 const config = {
                     headers: {
@@ -108,7 +121,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
                 console.log(data);
 
-                // socket.emit("new message", data);
+                socket.emit("new message", data);
                 setMessages([...messages, data]);
             } catch (error) {
                 toast.error("Failed to send the Message", toastOptions);
@@ -116,8 +129,52 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         }
     };
 
+    useEffect(() => {
+        socket = io(ENDPOINT);
+        socket.emit("setup", user);
+        socket.on("connected", () => setSocketConnected(true));
+        socket.on("typing", () => setIsTyping(true));
+        socket.on("stop typing", () => setIsTyping(false));
+    }, [user]);
+
+    useEffect(() => {
+        fetchMessages();
+        selectedChatCompare = selectedChat;
+    }, [selectedChat]);
+
+    useEffect(() => {
+        socket.on("message received", (newMessageReceived) => {
+            if (
+                !selectedChatCompare || // if chat is not selected or doesn't match current chat
+                selectedChatCompare._id !== newMessageReceived.chat._id
+            ) {
+                //* give notification
+            } else {
+                setMessages([...messages, newMessageReceived]);
+            }
+        });
+    });
+
     const typingHandler = (e) => {
         setNewMessage(e.target.value);
+
+        if (!socketConnected) return;
+
+        if (!typing) {
+            setTyping(true);
+            socket.emit("typing", selectedChat._id);
+        }
+
+        let lastTypingTime = new Date().getTime();
+        var timerLength = 3000;
+        setTimeout(() => {
+            var timeNow = new Date().getTime();
+            var timeDiff = timeNow - lastTypingTime;
+            if (timeDiff >= timerLength && typing) {
+                socket.emit("stop typing", selectedChat._id);
+                setTyping(false);
+            }
+        }, timerLength);
     };
 
     return (
@@ -193,12 +250,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                         }}
                                     />
                                 </IconButton>
-
-                                {/* <UpdateGroupChatModal
-                                    fetchMessages={fetchMessages}
-                                    fetchAgain={fetchAgain}
-                                    setFetchAgain={setFetchAgain}
-                                /> */}
                             </>
                         )}
                     </Box>
@@ -223,6 +274,22 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             </div>
                         )}
                         <Box>
+                            {isTyping ? (
+                                <div>
+                                    Loading....
+                                    <Lottie
+                                        options={defaultOptions}
+                                        // height={50}
+                                        width={70}
+                                        style={{
+                                            marginBottom: 15,
+                                            marginLeft: 0,
+                                        }}
+                                    />
+                                </div>
+                            ) : (
+                                <></>
+                            )}
                             <TextField
                                 placeholder="Enter a message.."
                                 fullWidth
@@ -263,6 +330,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     </Typography>
                 </Box>
             )}
+            <ToastContainer />
         </>
     );
 };

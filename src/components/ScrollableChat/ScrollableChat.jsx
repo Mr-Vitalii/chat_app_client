@@ -15,7 +15,7 @@ export const ScrollableChat = ({ messages }) => {
         <ScrollableFeed>
             {messages &&
                 messages.map((m, i) => (
-                    <Box sx={{ display: "flex" }} key={m._id}>
+                    <Box sx={{ display: "flex" }} key={m._id + i}>
                         {(isSameSender(messages, m, i, user._id) ||
                             isLastMessage(messages, i, user._id)) && (
                             <Tooltip
