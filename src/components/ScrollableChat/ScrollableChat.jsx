@@ -9,6 +9,8 @@ import {
     isSameUser,
 } from "config/ChatLogics";
 
+import { colors } from "theme";
+
 export const ScrollableChat = ({ messages }) => {
     const { user } = ChatState();
     return (
@@ -39,8 +41,8 @@ export const ScrollableChat = ({ messages }) => {
                             style={{
                                 backgroundColor: `${
                                     m.sender._id === user._id
-                                        ? "#BEE3F8"
-                                        : "#B9F5D0"
+                                        ? colors.primaryDarkTheme[100]
+                                        : colors.secondary[500]
                                 }`,
                                 marginLeft: isSameSenderMargin(
                                     messages,

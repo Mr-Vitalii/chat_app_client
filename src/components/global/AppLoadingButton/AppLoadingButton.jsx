@@ -6,8 +6,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 export const AppLoadingButton = styled(LoadingButton)(({ theme }) => ({
     borderRadius: "4px",
-    backgroundColor: colors.blueAccent[500],
-    boxShadow: `0px 1px 7px ${colors.blueAccent[700]}`,
+    backgroundColor: colors.secondary[500],
+    boxShadow: `0px 1px 7px ${colors.secondary[700]}`,
     padding: "10px 20px",
     minWidth: "185px",
     maxWidth: "300px",
@@ -15,8 +15,8 @@ export const AppLoadingButton = styled(LoadingButton)(({ theme }) => ({
     transition: "box-shadow 0.3s",
 
     "&:hover": {
-        backgroundColor: colors.blueAccent[400],
-        boxShadow: `0px 1px 20px ${colors.blueAccent[400]}`,
+        backgroundColor: colors.secondary[400],
+        boxShadow: `0px 1px 20px ${colors.secondary[400]}`,
     },
     "&:disabled": {
         backgroundColor: colors.secondary[500],

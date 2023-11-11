@@ -33,6 +33,8 @@ export const ChatProvider = ({ children }) => {
             setSelectedChat,
             chats,
             setChats,
+            notification,
+            setNotification,
             isMobile
         }}>
 

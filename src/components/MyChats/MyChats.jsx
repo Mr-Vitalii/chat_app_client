@@ -16,6 +16,9 @@ import { ChatLoading } from "../ChatLoading/ChatLoading";
 import { getSender } from "config/ChatLogics";
 import { GroupChatModal } from "../GroupChatModal/GroupChatModal";
 
+import { colors } from "theme";
+import { AppButton } from "../global/AppButton/AppButton";
+
 export const MyChats = ({ fetchAgain, setFetchAgain }) => {
     const [loggedUser, setLoggedUser] = useState();
 
@@ -36,12 +39,11 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
     };
 
     const fetchChats = async () => {
-        // console.log(user._id);
         try {
             setAuthHeader(user.token);
 
             const { data } = await instanceAuth.get("chat");
-            console.log(data);
+
             setChats(data);
         } catch (error) {
             toast.error("Failed to Load the chats", toastOptions);
@@ -64,10 +66,13 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
                         display: selectedChat ? "none" : "flex",
                         width: "100%",
                     },
+                    [theme.breakpoints.down("lg")]: {
+                        p: 1,
+                    },
                     flexDirection: "column",
                     alignItems: "center",
                     p: 3,
-                    backgroundColor: "green",
+                    backgroundColor: colors.primaryDarkTheme[500],
                     borderRadius: "10px",
                     borderWidth: "1px",
                 }}
@@ -88,31 +93,41 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
                         alignItems: "center",
                     }}
                 >
-                    <Typography sx={{ mr: 1 }}> My Chats</Typography>
-                    <Button
-                        variant="contained"
+                    <Typography
+                        variant="body1"
                         sx={{
-                            display: "flex",
-                            fontSize: "14px",
-                            [theme.breakpoints.up("md")]: {
-                                fontSize: "10px",
-                            },
-                            [theme.breakpoints.up("lg")]: {
-                                fontSize: "17px",
+                            mr: 1,
+                            [theme.breakpoints.down("lg")]: {
+                                fontSize: "12px",
                             },
                         }}
+                    >
+                        My Chats
+                    </Typography>
+                    <AppButton
+                        // variant="contained"
+                        // sx={{
+                        //     display: "flex",
+                        //     fontSize: "14px",
+                        //     [theme.breakpoints.up("md")]: {
+                        //         fontSize: "10px",
+                        //     },
+                        //     [theme.breakpoints.up("lg")]: {
+                        //         fontSize: "17px",
+                        //     },
+                        // }}
                         endIcon={<AddIcon />}
                         onClick={handleOpen}
                     >
                         New Group Chat
-                    </Button>
+                    </AppButton>
                 </Box>
                 <Box
                     sx={{
                         display: "flex",
                         flexDirection: "column",
                         p: 3,
-                        backgroundColor: "#F8F8F8",
+                        backgroundColor: colors.primaryDarkTheme[600],
                         width: "100%",
                         height: "100%",
                         borderRadius: "10px",
@@ -132,8 +147,8 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
                                         p: 3,
                                         backgroundColor:
                                             selectedChat === chat
-                                                ? "#38B2AC"
-                                                : "#E8E8E8",
+                                                ? colors.primaryDarkTheme[300]
+                                                : colors.secondary[500],
                                         color:
                                             selectedChat === chat
                                                 ? "white"
@@ -150,21 +165,6 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
                                             ? getSender(loggedUser, chat.users)
                                             : chat.chatName}
                                     </Typography>
-                                    {/* {chat.latestMessage && (
-                                        <Typography fontSize="xs">
-                                            <b>
-                                                {chat.latestMessage.sender.name}{" "}
-                                                :{" "}
-                                            </b>
-                                            {chat.latestMessage.content.length >
-                                            50
-                                                ? chat.latestMessage.content.substring(
-                                                      0,
-                                                      51,
-                                                  ) + "..."
-                                                : chat.latestMessage.content}
-                                        </Typography>
-                                    )} */}
                                 </Box>
                             ))}
                         </Stack>

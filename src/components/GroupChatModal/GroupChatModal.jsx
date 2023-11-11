@@ -112,6 +112,7 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
                         }}
                     >
                         <TextField
+                            color="secondary"
                             id="outlined-basic"
                             label="Chat Name"
                             variant="outlined"
@@ -122,6 +123,7 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
                             sx={{ mb: 3 }}
                         />
                         <TextField
+                            color="secondary"
                             id="outlined-basic"
                             label="Add Users"
                             variant="outlined"

@@ -4,6 +4,8 @@ import React from "react";
 import { ChatState } from "context/ChatProvider";
 import { SingleChat } from "../SingleChat/SingleChat";
 
+import { colors } from "theme";
+
 export const Chatbox = ({ fetchAgain, setFetchAgain }) => {
     const { selectedChat } = ChatState();
 
@@ -21,7 +23,7 @@ export const Chatbox = ({ fetchAgain, setFetchAgain }) => {
                 flexDirection: "column",
                 alignItems: "center",
                 p: 3,
-                backgroundColor: "white",
+                backgroundColor: colors.primaryDarkTheme[500],
 
                 borderRadius: "10px",
                 borderWidth: "1px",

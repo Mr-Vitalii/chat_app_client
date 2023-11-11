@@ -17,6 +17,10 @@ import { Box, List, ListItem, Typography } from "@mui/material";
 
 import { getErrorMessage } from "utils/helpers/getErrorMessage";
 
+import { instance, instanceAuth, setAuthHeader } from "utils/axios";
+
+import { ChatState } from "context/ChatProvider";
+
 import { AppLoadingButton } from "components/global/AppLoadingButton/AppLoadingButton";
 
 export const SetAvatar = () => {
@@ -31,6 +35,8 @@ export const SetAvatar = () => {
     const [file, setFile] = useState(null);
     const [rejected, setRejected] = useState([]);
     const [picLoading, setPicLoading] = useState(false);
+
+    const { user } = ChatState();
 
     const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
         if (acceptedFiles.length === 1) {
@@ -74,6 +80,7 @@ export const SetAvatar = () => {
             try {
                 console.log(formData);
                 console.log(file);
+
                 // await dispatch(updateAvatar(formData)).unwrap();
                 setPicLoading(false);
                 toast.success("File uploaded", toastOptions);

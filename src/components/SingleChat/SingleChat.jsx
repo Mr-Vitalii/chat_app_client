@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { ChatState } from "context/ChatProvider";
 import {
@@ -30,6 +30,8 @@ import animationData from "assets/animations/TypingIndicator.json";
 
 import "components/styles.css";
 import { ScrollableChat } from "../ScrollableChat/ScrollableChat";
+
+import { colors } from "theme";
 
 const ENDPOINT = "http://localhost:5000";
 var socket, selectedChatCompare;
@@ -64,6 +66,8 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [newMessage, setNewMessage] = useState("");
     const [socketConnected, setSocketConnected] = useState(false);
 
+    const [newNotification, setNewNotification] = useState("");
+
     const [typing, setTyping] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
 
@@ -75,7 +79,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [openUpdateGroupModal, setOpenUpdateGroupModal] = useState(false);
     const handleUpdateGroupModalOpen = () => setOpenUpdateGroupModal(true);
 
-    const fetchMessages = async () => {
+    const fetchMessages = useCallback(async () => {
         if (!selectedChat) return;
 
         try {
@@ -87,7 +91,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 `message/${selectedChat._id}`,
             );
 
-            console.log(messages);
             setMessages(data);
             setLoading(false);
 
@@ -95,7 +98,22 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         } catch (error) {
             toast.error("Failed to Load the Messages", toastOptions);
         }
-    };
+    }, [selectedChat]);
+
+    const fetchNotification = useCallback(async () => {
+        try {
+            setAuthHeader(user.token);
+
+            setLoading(true);
+
+            const { data } = await instanceAuth.get(`notification`);
+
+            setNotification(data);
+            setLoading(false);
+        } catch (error) {
+            toast.error("Failed to Load the Notification", toastOptions);
+        }
+    }, [setNotification]);
 
     const sendMessage = async (event) => {
         if (event.key === "Enter" && newMessage) {
@@ -119,8 +137,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     config,
                 );
 
-                console.log(data);
-
                 socket.emit("new message", data);
                 setMessages([...messages, data]);
             } catch (error) {
@@ -128,6 +144,46 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             }
         }
     };
+
+    const sendNotification = useCallback(async () => {
+        const config = {
+            headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${user.token}`,
+            },
+        };
+
+        const notificationData = await instance.post(
+            "notification",
+            {
+                content: newNotification.content,
+                chatId: newNotification.chat,
+            },
+            config,
+        );
+
+        setNotification([notificationData.data, ...notification]);
+    }, [newNotification]);
+
+    const deleteNotificationsFromCurrentChat = useCallback(async () => {
+        setAuthHeader(user.token);
+
+        const response = await instanceAuth.delete(
+            `notification/chat/${selectedChat._id}`,
+        );
+    }, [selectedChat]);
+
+    useEffect(() => {
+        if (newNotification) {
+            sendNotification();
+        }
+    }, [sendNotification, newNotification]);
+
+    useEffect(() => {
+        if (selectedChat && notification) {
+            deleteNotificationsFromCurrentChat();
+        }
+    }, [deleteNotificationsFromCurrentChat, selectedChat]);
 
     useEffect(() => {
         socket = io(ENDPOINT);
@@ -140,7 +196,11 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     useEffect(() => {
         fetchMessages();
         selectedChatCompare = selectedChat;
-    }, [selectedChat]);
+    }, [selectedChat, fetchMessages]);
+
+    useEffect(() => {
+        fetchNotification();
+    }, [fetchNotification]);
 
     useEffect(() => {
         socket.on("message received", (newMessageReceived) => {
@@ -149,6 +209,11 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 selectedChatCompare._id !== newMessageReceived.chat._id
             ) {
                 //* give notification
+                if (!notification.includes(newMessageReceived)) {
+                    setNewNotification(newMessageReceived);
+                    // setNotification([newMessageReceived, ...notification]);
+                    setFetchAgain(!fetchAgain);
+                }
             } else {
                 setMessages([...messages, newMessageReceived]);
             }
@@ -207,12 +272,17 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             onClick={() => setSelectedChat("")}
                         >
                             <ArrowBackIosIcon
-                                sx={{ color: "red", backgroundColor: "yellow" }}
+                                sx={{
+                                    color: colors.whiteAccent[500],
+                                    backgroundColor: "inherit",
+                                }}
                             />
                         </IconButton>
                         {!selectedChat.isGroupChat ? (
                             <>
-                                <Typography sx={{ color: "red" }}>
+                                <Typography
+                                    sx={{ color: colors.whiteAccent[500] }}
+                                >
                                     {getSender(user, selectedChat.users)}
                                 </Typography>
 
@@ -225,15 +295,17 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                 >
                                     <VisibilityIcon
                                         sx={{
-                                            color: "red",
-                                            backgroundColor: "yellow",
+                                            color: colors.whiteAccent[500],
+                                            backgroundColor: "inherit",
                                         }}
                                     />
                                 </IconButton>
                             </>
                         ) : (
                             <>
-                                <Typography sx={{ color: "red" }}>
+                                <Typography
+                                    sx={{ color: colors.whiteAccent[500] }}
+                                >
                                     {selectedChat.chatName.toUpperCase()}
                                 </Typography>
                                 <IconButton
@@ -245,8 +317,8 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                 >
                                     <VisibilityIcon
                                         sx={{
-                                            color: "red",
-                                            backgroundColor: "yellow",
+                                            color: colors.whiteAccent[500],
+                                            backgroundColor: "inherit",
                                         }}
                                     />
                                 </IconButton>
@@ -259,7 +331,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             flexDirection: "column",
                             justifyContent: "flex-end",
                             p: 3,
-                            backgroundColor: "#e9a5a5",
+                            backgroundColor: colors.primaryDarkTheme[600],
                             width: "100%",
                             height: "100%",
                             borderRadius: "10px",
@@ -279,7 +351,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                     Loading....
                                     <Lottie
                                         options={defaultOptions}
-                                        // height={50}
                                         width={70}
                                         style={{
                                             marginBottom: 15,
@@ -324,7 +395,11 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 >
                     <Typography
                         variant="h2"
-                        sx={{ pb: 3, fontFamily: "Work sans", color: "red" }}
+                        sx={{
+                            pb: 3,
+                            fontFamily: "Work sans",
+                            color: colors.whiteAccent[500],
+                        }}
                     >
                         Click on a user to start chatting
                     </Typography>
