@@ -8,7 +8,7 @@ import { ColorModeContext } from "theme/context";
 import { ThemeProvider } from "@mui/material";
 import CssBaseline from '@mui/material/CssBaseline';
 
-
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const [theme, colorMode] = useMode()
@@ -21,7 +21,7 @@ function App() {
             <Route path="/" element={<AuthPage />} />
             <Route path="/chat" element={<ChatPage />} />
           </Routes>
-
+          <ToastContainer />
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>

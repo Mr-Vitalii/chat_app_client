@@ -1,24 +1,40 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { chatRoute } from "../utils/APIRoutes";
+import React, { useState } from "react";
+import { ChatState } from "context/ChatProvider";
+
+import { Box, useTheme } from "@mui/material";
+import { MyChats } from "components/MyChats/MyChats";
+import { Chatbox } from "components/Chatbox/Chatbox";
+import { Navbar } from "../components/Navbar/Navbar";
 
 export const ChatPage = () => {
-    const [chats, setChats] = useState([]);
-    // const fetchChats = async () => {
-    //   const response = await axios.get(chatRoute);
-    //   console.log(response.data.chats);
-    //   setChats(response.data.chats);
-    // };
+    const { user } = ChatState();
+    const [fetchAgain, setFetchAgain] = useState(false);
 
-    // useEffect(() => {
-    //     fetchChats();
-    // }, []);
+    const theme = useTheme();
 
     return (
-        <div>
-            {/* {chats.map((chat) => (
-        <div key={chat._id}>{chat.chatName}</div>
-      ))} */}
+        <div style={{ width: "100%" }}>
+            {user && <Navbar />}
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    height: "89vh",
+                    [theme.breakpoints.up("md")]: {
+                        height: "85vh",
+                    },
+                    p: "10px",
+                }}
+            >
+                {user && <MyChats fetchAgain={fetchAgain} />}
+                {user && (
+                    <Chatbox
+                        fetchAgain={fetchAgain}
+                        setFetchAgain={setFetchAgain}
+                    />
+                )}
+            </Box>
         </div>
     );
 };

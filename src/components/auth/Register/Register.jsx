@@ -1,6 +1,6 @@
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Box,
     FormControl,
     Grid,
     IconButton,
@@ -9,29 +9,26 @@ import {
     OutlinedInput,
     TextField,
     Typography,
-    Button,
 } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import React, { useState } from "react";
+
 import { StyledBox } from "../styled-components";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import { AppLoadingButton } from "../../global/AppLoadingButton/AppLoadingButton";
-import { SetAvatar } from "components/Avatar/SetAvatar";
-import { AvatarWindow } from "../../Avatar/AvatarWindow";
 
 import { formValidation } from "./formValidation";
 import { instance } from "utils/axios";
+
+import { AppLoadingButton } from "../../global/AppLoadingButton/AppLoadingButton";
+
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 export const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const toastOptions = {
         position: "bottom-right",
-        autoClose: 8000,
+        autoClose: 5000,
         pauseOnHover: true,
         draggable: true,
         theme: "dark",
@@ -65,13 +62,17 @@ export const Register = () => {
             try {
                 const res = await instance.post("user/register", data);
 
-                console.log(res);
-                localStorage.setItem("userInfo", JSON.stringify(res));
+                localStorage.setItem("userInfo", JSON.stringify(res.data));
                 toast.success("Registration Successful", toastOptions);
                 setLoading(false);
                 navigate("/chat");
-            } catch (error) {
-                console.log(error);
+            } catch (e) {
+                if (e.response) {
+                    toast.error(e.response.data.message, toastOptions);
+                } else {
+                    toast.error(e.message, toastOptions);
+                }
+                setLoading(false);
             }
         }
     };
@@ -104,6 +105,7 @@ export const Register = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                color="secondary"
                                 name="name"
                                 autoComplete="off"
                                 fullWidth
@@ -115,6 +117,7 @@ export const Register = () => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                color="secondary"
                                 name="email"
                                 autoComplete="off"
                                 fullWidth
@@ -125,7 +128,11 @@ export const Register = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth variant="outlined">
+                            <FormControl
+                                fullWidth
+                                variant="outlined"
+                                color="secondary"
+                            >
                                 <InputLabel htmlFor="outlined-adornment-password">
                                     Password
                                 </InputLabel>
@@ -159,9 +166,13 @@ export const Register = () => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth variant="outlined">
+                            <FormControl
+                                fullWidth
+                                variant="outlined"
+                                color="secondary"
+                            >
                                 <InputLabel htmlFor="outlined-adornment-password">
-                                    Password
+                                    Confirm Password
                                 </InputLabel>
                                 <OutlinedInput
                                     id="outlined-adornment-confirmpassword"
@@ -187,13 +198,14 @@ export const Register = () => {
                                         </InputAdornment>
                                     }
                                     name="confirmPassword"
-                                    label="Confirm Password"
+                                    label="ConfirmPassword"
                                     onChange={handleChange}
                                 />
                             </FormControl>
                         </Grid>
                     </Grid>
                     <AppLoadingButton
+                        loading={loading}
                         type="submit"
                         sx={{ marginTop: 2, marginBottom: 2, width: "60%" }}
                         variant="contained"
@@ -202,7 +214,6 @@ export const Register = () => {
                     </AppLoadingButton>
                 </StyledBox>
             </form>
-            <ToastContainer />
         </>
     );
 };

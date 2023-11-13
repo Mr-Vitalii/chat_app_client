@@ -1,7 +1,6 @@
-import { useCallback, useState } from "react";
-import { FileRejection, useDropzone } from "react-dropzone";
-import { ToastContainer, toast } from "react-toastify";
-
+import { useCallback, useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { Box, List, ListItem, Typography } from "@mui/material";
 import {
     StyledBox,
     DropContainer,
@@ -13,16 +12,18 @@ import {
     ErrorsContainer,
 } from "./styled-components";
 
-import { Box, List, ListItem, Typography } from "@mui/material";
-
 import { getErrorMessage } from "utils/helpers/getErrorMessage";
+import { instanceAuth, setAuthHeader } from "utils/axios";
 
+import { ChatState } from "context/ChatProvider";
 import { AppLoadingButton } from "components/global/AppLoadingButton/AppLoadingButton";
+
+import { toast } from "react-toastify";
 
 export const SetAvatar = () => {
     const toastOptions = {
         position: "bottom-right",
-        autoClose: 8000,
+        autoClose: 4000,
         pauseOnHover: true,
         draggable: true,
         theme: "dark",
@@ -31,6 +32,8 @@ export const SetAvatar = () => {
     const [file, setFile] = useState(null);
     const [rejected, setRejected] = useState([]);
     const [picLoading, setPicLoading] = useState(false);
+
+    const { user, setUser } = ChatState();
 
     const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
         if (acceptedFiles.length === 1) {
@@ -74,7 +77,21 @@ export const SetAvatar = () => {
             try {
                 console.log(formData);
                 console.log(file);
-                // await dispatch(updateAvatar(formData)).unwrap();
+
+                setAuthHeader(user.token);
+
+                const { data } = await instanceAuth.patch(
+                    "user/update_avatar",
+                    formData,
+                );
+
+                setUser((prevUser) => ({
+                    ...prevUser,
+                    pic: data.pic,
+                }));
+
+                localStorage.setItem("userInfo", JSON.stringify(user));
+
                 setPicLoading(false);
                 toast.success("File uploaded", toastOptions);
                 setFile(null);
@@ -83,6 +100,12 @@ export const SetAvatar = () => {
             }
         }
     };
+
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem("userInfo", JSON.stringify(user));
+        }
+    }, [user]);
 
     return (
         <Container>
