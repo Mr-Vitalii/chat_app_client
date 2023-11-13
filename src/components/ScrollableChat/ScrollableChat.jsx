@@ -1,7 +1,8 @@
-import { Avatar, Box, Tooltip, Typography } from "@mui/material";
 import React from "react";
-import ScrollableFeed from "react-scrollable-feed";
+import { Avatar, Box, Tooltip } from "@mui/material";
 import { ChatState } from "context/ChatProvider";
+import ScrollableFeed from "react-scrollable-feed";
+
 import {
     isLastMessage,
     isSameSender,

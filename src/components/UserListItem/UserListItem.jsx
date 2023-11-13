@@ -1,10 +1,12 @@
-import { Box } from "@mui/system";
 import React from "react";
+import { Box, Avatar, Typography } from "@mui/material";
+
 import { ChatState } from "context/ChatProvider";
-import { Avatar, Typography } from "@mui/material";
+
+import { colors } from "theme";
 
 export const UserListItem = ({ searchUser, handleFunction }) => {
-    const { user, isMobile } = ChatState();
+    const { isMobile } = ChatState();
 
     return (
         <Box
@@ -12,34 +14,20 @@ export const UserListItem = ({ searchUser, handleFunction }) => {
             sx={{
                 display: "flex",
                 alignItems: "center",
-                backgroundColor: "#E8E8E8",
+                backgroundColor: colors.secondary[300],
                 width: "100%",
                 color: "black",
                 p: isMobile ? 1 : 2,
                 mb: 2,
                 borderRadius: "8px",
                 "&:hover": {
-                    backgroundColor: "#38B2AC",
+                    backgroundColor: colors.secondary[500],
                     color: "white",
                 },
             }}
-            // cursor="pointer"
-            // bg="#E8E8E8"
-            // _hover={{
-            //     background: "#38B2AC",
-            //     color: "white",
-            // }}
-            // w="100%"
-            // d="flex"
-            // alignItems="center"
-            // color="black"
-            // px={3}
-            // py={2}
-            // mb={2}
-            // borderRadius="lg"
         >
             <Avatar
-                src={user.pic}
+                src={searchUser.pic}
                 alt="avatar"
                 width="50px"
                 sx={{ mr: 1, cursor: "pointer" }}

@@ -1,31 +1,29 @@
 import React, { useEffect, useState } from "react";
+
 import { ChatState } from "context/ChatProvider";
+import { instanceAuth, setAuthHeader } from "utils/axios";
+import { getSender } from "config/ChatLogics";
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Box, Typography, Stack, useTheme } from "@mui/material";
 
-import { instance, instanceAuth, setAuthHeader } from "utils/axios";
-import { Box, Button, Typography, Stack, useTheme } from "@mui/material";
+import { ChatLoading } from "components/global/ChatLoading/ChatLoading";
+import { GroupChatModal } from "components/modal/GroupChatModal/GroupChatModal";
+import { AppButton } from "components/global/AppButton/AppButton";
 
 import AddIcon from "@mui/icons-material/Add";
-import SendIcon from "@mui/icons-material/Send";
-
-import SearchIcon from "@mui/icons-material/Search";
-import { ChatLoading } from "../ChatLoading/ChatLoading";
-
-import { getSender } from "config/ChatLogics";
-import { GroupChatModal } from "../GroupChatModal/GroupChatModal";
 
 import { colors } from "theme";
-import { AppButton } from "../global/AppButton/AppButton";
 
-export const MyChats = ({ fetchAgain, setFetchAgain }) => {
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export const MyChats = ({ fetchAgain }) => {
     const [loggedUser, setLoggedUser] = useState();
 
     const [openModal, setOpenModal] = useState(false);
     const handleOpen = () => setOpenModal(true);
 
-    const { user, selectedChat, setSelectedChat, chats, setChats, isMobile } =
+    const { user, selectedChat, setSelectedChat, chats, setChats } =
         ChatState();
 
     const theme = useTheme();
@@ -53,7 +51,6 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
     useEffect(() => {
         setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
         fetchChats();
-        // eslint-disable-next-line
     }, [fetchAgain]);
 
     return (
@@ -104,21 +101,7 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
                     >
                         My Chats
                     </Typography>
-                    <AppButton
-                        // variant="contained"
-                        // sx={{
-                        //     display: "flex",
-                        //     fontSize: "14px",
-                        //     [theme.breakpoints.up("md")]: {
-                        //         fontSize: "10px",
-                        //     },
-                        //     [theme.breakpoints.up("lg")]: {
-                        //         fontSize: "17px",
-                        //     },
-                        // }}
-                        endIcon={<AddIcon />}
-                        onClick={handleOpen}
-                    >
+                    <AppButton endIcon={<AddIcon />} onClick={handleOpen}>
                         New Group Chat
                     </AppButton>
                 </Box>
@@ -178,7 +161,6 @@ export const MyChats = ({ fetchAgain, setFetchAgain }) => {
                 setOpenModal={setOpenModal}
                 handleOpen={handleOpen}
             />
-            <ToastContainer />
         </>
     );
 };

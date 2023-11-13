@@ -1,8 +1,7 @@
-import { Typography, Box } from "@mui/material";
-
 import React from "react";
-import { BasicModal } from "../BasicModal/BasicModal";
-import { AppButton, AppLoadingButton } from "../global/AppButton/AppButton";
+
+import { Typography, Box, Avatar } from "@mui/material";
+import { BasicModal } from "components/modal/BasicModal/BasicModal";
 
 export const UserModal = ({ openModal, setOpenModal, user }) => {
     return (
@@ -24,7 +23,7 @@ export const UserModal = ({ openModal, setOpenModal, user }) => {
                         alignItems: "center",
                     }}
                 >
-                    <img src={user.pic} alt="avatar" width="100px" />
+                    <Avatar src={user.pic} alt="avatar" width="100px" />
                 </Box>
                 <Typography
                     id="transition-modal-description"

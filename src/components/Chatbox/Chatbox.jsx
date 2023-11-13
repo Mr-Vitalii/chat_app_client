@@ -1,5 +1,5 @@
-import { Box, useTheme } from "@mui/material";
 import React from "react";
+import { Box, useTheme } from "@mui/material";
 
 import { ChatState } from "context/ChatProvider";
 import { SingleChat } from "../SingleChat/SingleChat";

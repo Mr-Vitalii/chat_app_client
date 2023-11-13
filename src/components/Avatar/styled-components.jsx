@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, ListItem, Theme } from "@mui/material";
+import { Box, ListItem } from "@mui/material";
 import { colors } from "theme";
 
 export const Container = styled(Box)(({ theme }) => ({

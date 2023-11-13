@@ -1,6 +1,6 @@
 import { styled } from "@mui/material/styles";
 import { colors } from "theme";
-import { Button, Theme } from "@mui/material";
+import { Button } from "@mui/material";
 
 export const AppButton = styled(Button)(({ theme }) => ({
     borderRadius: "4px",

@@ -6,8 +6,8 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 
 import { StyledContainer } from "./styled-components";
-import { Login } from "./Login/Login";
-import { Register } from "./Register/Register";
+import { Login } from "components/auth/Login/Login";
+import { Register } from "components/auth/Register/Register";
 
 export const Auth = () => {
     const [value, setValue] = useState("1");

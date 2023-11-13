@@ -1,5 +1,4 @@
 import { styled } from "@mui/material/styles";
-import { Theme } from "@mui/material";
 import { colors } from "theme";
 
 import LoadingButton from "@mui/lab/LoadingButton";

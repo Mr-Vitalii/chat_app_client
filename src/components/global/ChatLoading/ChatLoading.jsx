@@ -1,9 +1,8 @@
 import { Box, Skeleton } from "@mui/material";
-import React from "react";
 
 export const ChatLoading = () => {
     return (
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: "100%", m: 2 }}>
             <Skeleton />
             <Skeleton animation="wave" />
             <Skeleton animation={false} />

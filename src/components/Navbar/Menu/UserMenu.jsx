@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
     Avatar,
     Box,
@@ -5,13 +8,10 @@ import {
     Menu,
     MenuItem,
     Tooltip,
-    Typography,
+    useTheme,
 } from "@mui/material";
 import { ChatState } from "context/ChatProvider";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { SetAvatar } from "../../Avatar/SetAvatar";
-import { ProfileModal } from "../../ProfileModal/ProfileModal";
+import { ProfileModal } from "components/modal/ProfileModal/ProfileModal";
 
 export const UserMenu = ({
     handleOpenUserMenu,
@@ -24,6 +24,8 @@ export const UserMenu = ({
 
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
+
+    const theme = useTheme();
 
     const handleProfileMenu = () => {
         handleCloseUserMenu();
@@ -40,7 +42,16 @@ export const UserMenu = ({
             <Box sx={{ flexGrow: 0 }}>
                 <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                        <Avatar alt="user avatar" src={user.pic} />
+                        <Avatar
+                            alt="user avatar"
+                            src={user.pic}
+                            sx={{
+                                [theme.breakpoints.up("md")]: {
+                                    width: "60px",
+                                    height: "60px",
+                                },
+                            }}
+                        />
                     </IconButton>
                 </Tooltip>
                 <Menu

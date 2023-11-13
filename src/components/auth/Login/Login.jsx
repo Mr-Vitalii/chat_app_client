@@ -1,6 +1,7 @@
+import React, { useState } from "react";
+import { StyledBox } from "../styled-components";
 import { useNavigate } from "react-router-dom";
 import {
-    Box,
     FormControl,
     Grid,
     IconButton,
@@ -10,18 +11,17 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import React, { useState } from "react";
-import { StyledBox } from "../styled-components";
 
-import { ToastContainer, toast } from "react-toastify";
+import { formValidation } from "./formValidation";
+import { instance } from "utils/axios";
+
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { AppLoadingButton } from "components/global/AppLoadingButton/AppLoadingButton";
 
-import { formValidation } from "./formValidation";
-import { instance } from "utils/axios";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 export const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -45,18 +45,6 @@ export const Login = () => {
         setValues({ ...values, [event.target.name]: event.target.value });
     };
 
-    // const validateForm = () => {
-    //     const { username, password } = values;
-    //     if (username === "") {
-    //         toast.error("Email and Password is required.", toastOptions);
-    //         return false;
-    //     } else if (password === "") {
-    //         toast.error("Email and Password is required.", toastOptions);
-    //         return false;
-    //     }
-    //     return true;
-    // };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -72,11 +60,15 @@ export const Login = () => {
                 const res = await instance.post("user/login", data);
 
                 localStorage.setItem("userInfo", JSON.stringify(res.data));
-                toast.success("Registration Successful", toastOptions);
                 setLoading(false);
                 navigate("/chat");
-            } catch (error) {
-                console.log(error);
+            } catch (e) {
+                if (e.response) {
+                    toast.error(e.response.data.message, toastOptions);
+                } else {
+                    toast.error(e.message, toastOptions);
+                }
+                setLoading(false);
             }
         }
     };
@@ -109,6 +101,7 @@ export const Login = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                color="secondary"
                                 name="email"
                                 autoComplete="off"
                                 fullWidth
@@ -119,7 +112,11 @@ export const Login = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth variant="outlined">
+                            <FormControl
+                                fullWidth
+                                variant="outlined"
+                                color="secondary"
+                            >
                                 <InputLabel htmlFor="outlined-adornment-password">
                                     Password
                                 </InputLabel>
@@ -154,6 +151,7 @@ export const Login = () => {
                         </Grid>
                     </Grid>
                     <AppLoadingButton
+                        loading={loading}
                         type="submit"
                         sx={{ marginTop: 2, marginBottom: 2, width: "60%" }}
                         variant="contained"
@@ -162,7 +160,6 @@ export const Login = () => {
                     </AppLoadingButton>
                 </StyledBox>
             </form>
-            <ToastContainer />
         </>
     );
 };

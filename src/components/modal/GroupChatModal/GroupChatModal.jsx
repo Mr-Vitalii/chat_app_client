@@ -1,21 +1,21 @@
 import React, { useState } from "react";
-import { BasicModal } from "../BasicModal/BasicModal";
+
+import { Box, TextField } from "@mui/material";
+
 import { ChatState } from "context/ChatProvider";
+import { instanceAuth, setAuthHeader } from "utils/axios";
 
-import { ToastContainer, toast } from "react-toastify";
+import { AppLoadingButton } from "components/global/AppLoadingButton/AppLoadingButton";
+import { UserListItem } from "components/UserListItem/UserListItem";
+import { UserBadgeItem } from "components/UserBadgeItem/UserBadgeItem";
+import { BasicModal } from "components/modal/BasicModal/BasicModal";
+
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Box, Button, TextField } from "@mui/material";
-
-import { UserListItem } from "components/UserAvatar/UserListItem";
-import { UserBadgeItem } from "../UserBadgeItem/UserBadgeItem";
-
-import { instance, instanceAuth, setAuthHeader } from "utils/axios";
-import { AppLoadingButton } from "../global/AppLoadingButton/AppLoadingButton";
 
 export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
     const [groupChatName, setGroupChatName] = useState();
     const [selectedUsers, setSelectedUsers] = useState([]);
-    const [search, setSearch] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -30,7 +30,6 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
     };
 
     const handleSearch = async (query) => {
-        setSearch(query);
         if (!query) {
             return;
         }
@@ -56,7 +55,8 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
         );
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         if (!groupChatName || !selectedUsers) {
             toast.warning("Please fill all the feilds", toastOptions);
             return;
@@ -129,7 +129,7 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
                             variant="outlined"
                             fullWidth
                             autoComplete="off"
-                            placeholder="Add Users eg: John, Piyush, Jane"
+                            placeholder="Add Users eg: Vitalii, Tatiana, Evgeniy"
                             onChange={(e) => handleSearch(e.target.value)}
                             sx={{ mb: 1 }}
                         />
@@ -184,7 +184,6 @@ export const GroupChatModal = ({ openModal, setOpenModal, handleOpen }) => {
                     </Box>
                 </form>
             </BasicModal>
-            <ToastContainer />
         </>
     );
 };

@@ -8,18 +8,18 @@ import {
     Typography,
     Badge,
     Tooltip,
-    Button,
     useTheme,
 } from "@mui/material";
 
 import SearchIcon from "@mui/icons-material/Search";
-
 import MailIcon from "@mui/icons-material/Mail";
 
-import { NotificationMenu } from "./Menu/NotificationMenu";
 import { ChatState } from "context/ChatProvider";
+
+import { NotificationMenu } from "./Menu/NotificationMenu";
 import { UserMenu } from "./Menu/UserMenu";
-import { SideBar } from "../SideBar/SideBar";
+import { SideBar } from "components/SideBar/SideBar";
+import { AppButton } from "components/global/AppButton/AppButton";
 
 export const Navbar = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -65,7 +65,15 @@ export const Navbar = () => {
     return (
         <>
             <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
+                <AppBar
+                    position="static"
+                    sx={{
+                        p: 1,
+                        [theme.breakpoints.up("md")]: {
+                            p: 2,
+                        },
+                    }}
+                >
                     <Toolbar
                         sx={{
                             justifyContent: "space-between",
@@ -75,12 +83,7 @@ export const Navbar = () => {
                             title="Search Users to chat"
                             placement="top-start"
                         >
-                            <Button
-                                size="large"
-                                edge="start"
-                                color="inherit"
-                                component="label"
-                                variant="contained"
+                            <AppButton
                                 sx={{ mr: 2 }}
                                 startIcon={<SearchIcon />}
                                 onClick={() => setOpenSideBar(true)}
@@ -95,7 +98,7 @@ export const Navbar = () => {
                                 >
                                     Search User
                                 </Typography>
-                            </Button>
+                            </AppButton>
                         </Tooltip>
                         <Typography
                             variant="h4"
@@ -111,6 +114,7 @@ export const Navbar = () => {
 
                         <Box sx={{ display: { xs: "none", md: "flex" } }}>
                             <IconButton
+                                sx={{ mr: 1 }}
                                 size="large"
                                 aria-label="notifications"
                                 color="inherit"

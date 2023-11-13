@@ -1,25 +1,13 @@
 import { useState } from "react";
 import { BoxStyled } from "./styled-components";
 
-import {
-    Backdrop,
-    Modal,
-    Fade,
-    Button,
-    IconButton,
-    Typography,
-    Box,
-    Grid,
-} from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { SetAvatar } from "../Avatar/SetAvatar";
+import { Backdrop, Modal, Fade, Typography, Box } from "@mui/material";
+
 import { ChildModal } from "./ChildModal";
 
 import { AppButton } from "components/global/AppButton/AppButton";
 
 export const ProfileModal = ({ open, setOpen, user }) => {
-    // const [open, setOpen] = useState(false);
-    // const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const [openChildModal, setOpenChildModal] = useState(false);

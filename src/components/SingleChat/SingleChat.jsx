@@ -3,37 +3,38 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ChatState } from "context/ChatProvider";
 import {
     Box,
+    FormControl,
     IconButton,
-    TextField,
+    InputAdornment,
+    InputLabel,
+    OutlinedInput,
     Typography,
     useTheme,
 } from "@mui/material";
-
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import io from "socket.io-client";
 
 import { getSender, getSenderFull } from "config/ChatLogics";
-import { UserModal } from "../UserModal/UserModal";
-import { UpdateGroupChatModal } from "../UpdateGroupChatModal/UpdateGroupChatModal";
-
 import { instance, instanceAuth, setAuthHeader } from "utils/axios";
-
-import CircularProgress from "@mui/material/CircularProgress";
-
-import Lottie from "react-lottie";
 import animationData from "assets/animations/TypingIndicator.json";
 
-import "components/styles.css";
-import { ScrollableChat } from "../ScrollableChat/ScrollableChat";
+import { UserModal } from "components/modal/UserModal/UserModal";
+import { UpdateGroupChatModal } from "components/modal/UpdateGroupChatModal/UpdateGroupChatModal";
+
+import { ScrollableChat } from "components/ScrollableChat/ScrollableChat";
+
+import SendIcon from "@mui/icons-material/Send";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Lottie from "react-lottie";
 
 import { colors } from "theme";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://chat-app-server-u2qf.onrender.com";
 var socket, selectedChatCompare;
 
 const toastOptions = {
@@ -98,7 +99,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         } catch (error) {
             toast.error("Failed to Load the Messages", toastOptions);
         }
-    }, [selectedChat]);
+    }, [selectedChat, user.token]);
 
     const fetchNotification = useCallback(async () => {
         try {
@@ -113,65 +114,80 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         } catch (error) {
             toast.error("Failed to Load the Notification", toastOptions);
         }
-    }, [setNotification]);
+    }, [setNotification, user.token]);
 
-    const sendMessage = async (event) => {
+    const sendMessage = async () => {
+        try {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${user.token}`,
+                },
+            };
+
+            setNewMessage("");
+
+            const { data } = await instance.post(
+                "message",
+                {
+                    content: newMessage,
+                    chatId: selectedChat,
+                },
+                config,
+            );
+
+            socket.emit("new message", data);
+            setMessages([...messages, data]);
+        } catch (error) {
+            toast.error("Failed to send the Message", toastOptions);
+        }
+    };
+
+    const handleSendMessage = () => {
+        socket.emit("stop typing", selectedChat._id);
+        sendMessage();
+    };
+
+    const handleKeyDown = (event) => {
         if (event.key === "Enter" && newMessage) {
             socket.emit("stop typing", selectedChat._id);
-            try {
-                const config = {
-                    headers: {
-                        "Content-type": "application/json",
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                };
-
-                setNewMessage("");
-
-                const { data } = await instance.post(
-                    "message",
-                    {
-                        content: newMessage,
-                        chatId: selectedChat,
-                    },
-                    config,
-                );
-
-                socket.emit("new message", data);
-                setMessages([...messages, data]);
-            } catch (error) {
-                toast.error("Failed to send the Message", toastOptions);
-            }
+            sendMessage();
         }
     };
 
     const sendNotification = useCallback(async () => {
-        const config = {
-            headers: {
-                "Content-type": "application/json",
-                Authorization: `Bearer ${user.token}`,
-            },
-        };
+        try {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${user.token}`,
+                },
+            };
 
-        const notificationData = await instance.post(
-            "notification",
-            {
-                content: newNotification.content,
-                chatId: newNotification.chat,
-            },
-            config,
-        );
+            const notificationData = await instance.post(
+                "notification",
+                {
+                    content: newNotification.content,
+                    chatId: newNotification.chat,
+                },
+                config,
+            );
 
-        setNotification([notificationData.data, ...notification]);
-    }, [newNotification]);
+            setNotification([notificationData.data, ...notification]);
+        } catch (error) {
+            console.log(error);
+        }
+    }, [newNotification, user.token]);
 
     const deleteNotificationsFromCurrentChat = useCallback(async () => {
-        setAuthHeader(user.token);
+        try {
+            setAuthHeader(user.token);
 
-        const response = await instanceAuth.delete(
-            `notification/chat/${selectedChat._id}`,
-        );
-    }, [selectedChat]);
+            await instanceAuth.delete(`notification/chat/${selectedChat._id}`);
+        } catch (error) {
+            console.log(error);
+        }
+    }, [selectedChat, user.token]);
 
     useEffect(() => {
         if (newNotification) {
@@ -205,13 +221,12 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     useEffect(() => {
         socket.on("message received", (newMessageReceived) => {
             if (
-                !selectedChatCompare || // if chat is not selected or doesn't match current chat
+                !selectedChatCompare ||
                 selectedChatCompare._id !== newMessageReceived.chat._id
             ) {
                 //* give notification
                 if (!notification.includes(newMessageReceived)) {
                     setNewNotification(newMessageReceived);
-                    // setNotification([newMessageReceived, ...notification]);
                     setFetchAgain(!fetchAgain);
                 }
             } else {
@@ -231,7 +246,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         }
 
         let lastTypingTime = new Date().getTime();
-        var timerLength = 3000;
+        var timerLength = 2000;
         setTimeout(() => {
             var timeNow = new Date().getTime();
             var timeDiff = timeNow - lastTypingTime;
@@ -339,35 +354,74 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         }}
                     >
                         {loading ? (
-                            <CircularProgress />
+                            <CircularProgress sx={{ m: "auto" }} />
                         ) : (
-                            <div className="messages">
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    overflowY: "scroll",
+                                    scrollbarWidth: "none",
+                                }}
+                            >
                                 <ScrollableChat messages={messages} />
-                            </div>
+                            </Box>
                         )}
                         <Box>
                             {isTyping ? (
-                                <div>
-                                    Loading....
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        mt: 1,
+                                    }}
+                                >
+                                    <Typography> Typing</Typography>
                                     <Lottie
                                         options={defaultOptions}
                                         width={70}
+                                        height={30}
                                         style={{
-                                            marginBottom: 15,
+                                            marginBottom: 0,
                                             marginLeft: 0,
                                         }}
                                     />
-                                </div>
+                                </Box>
                             ) : (
                                 <></>
                             )}
-                            <TextField
-                                placeholder="Enter a message.."
-                                fullWidth
-                                value={newMessage}
-                                onChange={typingHandler}
-                                onKeyDown={sendMessage}
-                            />
+                            <FormControl
+                                sx={{ mt: 1, width: "100%" }}
+                                variant="outlined"
+                            >
+                                <InputLabel
+                                    htmlFor="send-message"
+                                    color="secondary"
+                                >
+                                    Enter a message..
+                                </InputLabel>
+                                <OutlinedInput
+                                    id="send-message"
+                                    color="secondary"
+                                    fullWidth
+                                    value={newMessage}
+                                    onChange={typingHandler}
+                                    onKeyDown={handleKeyDown}
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="send-message"
+                                                onClick={handleSendMessage}
+                                                edge="end"
+                                            >
+                                                <SendIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                    label="Send Message"
+                                />
+                            </FormControl>
                         </Box>
                     </Box>
                     <UserModal
@@ -384,7 +438,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     />
                 </>
             ) : (
-                // to get socket.io on same page
                 <Box
                     sx={{
                         display: "flex",
@@ -405,7 +458,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     </Typography>
                 </Box>
             )}
-            <ToastContainer />
         </>
     );
 };

@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { BasicModal } from "../BasicModal/BasicModal";
+import { Box, TextField, Typography, useTheme } from "@mui/material";
+
 import { ChatState } from "context/ChatProvider";
+import { instanceAuth, setAuthHeader } from "utils/axios";
+
+import { BasicModal } from "components/modal/BasicModal/BasicModal";
+import { UserBadgeItem } from "components/UserBadgeItem/UserBadgeItem";
+import { AppLoadingButton } from "components/global/AppLoadingButton/AppLoadingButton";
+import { ChatLoading } from "components/global/ChatLoading/ChatLoading";
+import { UserListItem } from "components/UserListItem/UserListItem";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import { Box, TextField, Typography, useTheme } from "@mui/material";
-import { UserBadgeItem } from "../UserBadgeItem/UserBadgeItem";
-import { AppLoadingButton } from "../global/AppLoadingButton/AppLoadingButton";
-
-import { instance, instanceAuth, setAuthHeader } from "utils/axios";
-import { ChatLoading } from "../ChatLoading/ChatLoading";
-import { UserListItem } from "../UserAvatar/UserListItem";
 
 const toastOptions = {
     position: "bottom-right",
@@ -29,7 +29,6 @@ export const UpdateGroupChatModal = ({
     fetchMessages,
 }) => {
     const [groupChatName, setGroupChatName] = useState("");
-    const [search, setSearch] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     const [loading, setLoading] = useState(false);
     const [renameloading, setRenameLoading] = useState(false);
@@ -128,7 +127,6 @@ export const UpdateGroupChatModal = ({
     };
 
     const handleSearch = async (query) => {
-        setSearch(query);
         if (!query) {
             return;
         }
@@ -141,8 +139,6 @@ export const UpdateGroupChatModal = ({
             const { data } = await instanceAuth.get(
                 `user/users?search=${query}`,
             );
-
-            console.log(data);
 
             setLoading(false);
             setSearchResult(data);

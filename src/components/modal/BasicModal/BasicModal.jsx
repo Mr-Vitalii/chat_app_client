@@ -1,11 +1,7 @@
-import { useState } from "react";
 import { BoxStyled } from "./styled-components";
-
 import { Backdrop, Modal, Fade } from "@mui/material";
 
 export const BasicModal = ({ open, setOpen, children }) => {
-    // const [open, setOpen] = useState(false);
-    // const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     return (

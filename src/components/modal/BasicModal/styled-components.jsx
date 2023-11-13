@@ -1,6 +1,5 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
-import { colors } from "theme";
 
 export const BoxStyled = styled(Box)(({ theme }) => ({
     position: "absolute",
@@ -9,7 +8,7 @@ export const BoxStyled = styled(Box)(({ theme }) => ({
     transform: "translate(-50%, -50%)",
     width: 350,
     [theme.breakpoints.up("md")]: {
-        width: 560,
+        minWidth: 420,
     },
     backgroundColor: theme.palette.borderColor.main,
     border: "2px solid #000",

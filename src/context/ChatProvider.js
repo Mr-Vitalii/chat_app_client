@@ -1,6 +1,7 @@
-import { useMediaQuery } from "@mui/material";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
+
 
 const ChatContext = createContext();
 
@@ -22,7 +23,6 @@ export const ChatProvider = ({ children }) => {
         if (!userInfo) navigate("/");
 
     }, [navigate]);
-
 
 
     return (

@@ -4,31 +4,25 @@ import {
     Box,
     SwipeableDrawer,
     Button,
-    List,
-    Divider,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
     TextField,
+    IconButton,
+    useTheme,
 } from "@mui/material";
-
 import CircularProgress from "@mui/material/CircularProgress";
 
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import { ChatState } from "context/ChatProvider";
+import { instance, instanceAuth, setAuthHeader } from "utils/axios";
 
-import { ToastContainer, toast } from "react-toastify";
+import { ChatLoading } from "components/global/ChatLoading/ChatLoading";
+import { UserListItem } from "components/UserListItem/UserListItem";
+
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { ChatState } from "context/ChatProvider";
-
-import { AppButton } from "components/global/AppButton/AppButton";
-
-import { instance, instanceAuth, setAuthHeader } from "utils/axios";
-import { ChatLoading } from "../ChatLoading/ChatLoading";
-import { UserListItem } from "../UserAvatar/UserListItem";
-import { LoadingComponent } from "../LoadingComponent/LoadingComponent";
+import { colors } from "theme";
 
 export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
     const [search, setSearch] = useState("");
@@ -43,6 +37,8 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
         draggable: true,
         theme: "dark",
     };
+
+    const theme = useTheme();
 
     const { user, setSelectedChat, chats, setChats, isMobile } = ChatState();
 
@@ -61,8 +57,6 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
                 `user/users?search=${search}`,
             );
 
-            console.log(data);
-
             setLoading(false);
             setSearchResult(data);
         } catch (error) {
@@ -71,8 +65,6 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
     };
 
     const accessChat = async (userId) => {
-        console.log(userId);
-
         try {
             setLoadingChat(true);
             const config = {
@@ -92,50 +84,13 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
             setOpenSideBar(false);
         } catch (error) {
             console.log(error);
-
             toast.error("Error fetching the chat", toastOptions);
         }
     };
 
-    const list = () => (
-        <Box
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-        >
-            <List>
-                {["Inbox", "Starred", "Send email", "Drafts"].map(
-                    (text, index) => (
-                        <ListItem key={text} disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    {index % 2 === 0 ? (
-                                        <InboxIcon />
-                                    ) : (
-                                        <MailIcon />
-                                    )}
-                                </ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItemButton>
-                        </ListItem>
-                    ),
-                )}
-            </List>
-            <Divider />
-            <List>
-                {["All mail", "Trash", "Spam"].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-        </Box>
-    );
+    const handleDrawerClose = () => {
+        setOpenSideBar(false);
+    };
 
     return (
         <div>
@@ -144,29 +99,66 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
                 open={openSideBar}
                 onClose={toggleDrawer(false)}
                 onOpen={toggleDrawer(true)}
+                sx={{
+                    "& .MuiDrawer-paper": {
+                        backgroundColor: colors.primaryDarkTheme[500],
+                        backgroundImage: "none",
+                    },
+                }}
             >
-                {/* {list()} */}
-                <Box sx={{ width: "250", p: isMobile ? 1 : 3 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                        <TextField
-                            id="outlined-basic"
-                            label="Outlined"
-                            variant="outlined"
-                            placeholder="Search by name or email"
-                            sx={{ mr: 2 }}
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                        <Button
-                            variant="contained"
-                            /* onClick={handleSearch} */
-                            onClick={handleSearch}
+                <Box
+                    sx={{
+                        width: isMobile ? "100vw" : "400px",
+                        p: isMobile ? 1 : 3,
+                        backgroundColor: colors.primaryDarkTheme[500],
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: isMobile
+                                ? "space-between"
+                                : "start",
+                            alignItems: "center",
+                            mb: 2,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                            }}
                         >
-                            Go
-                        </Button>
+                            <TextField
+                                color="secondary"
+                                autoComplete="off"
+                                id="outlined-basic"
+                                label="Outlined"
+                                variant="outlined"
+                                placeholder="Search by name or email"
+                                sx={{ mr: 2 }}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            <Button
+                                color="secondary"
+                                variant="contained"
+                                onClick={handleSearch}
+                            >
+                                Go
+                            </Button>
+                        </Box>
+
+                        <IconButton onClick={handleDrawerClose}>
+                            {theme.direction === "ltr" ? (
+                                <ChevronLeftIcon />
+                            ) : (
+                                <ChevronRightIcon />
+                            )}
+                        </IconButton>
                     </Box>
                     {loading ? (
-                        <ChatLoading />
+                        <ChatLoading sx={{ m: "auto" }} />
                     ) : (
                         searchResult?.map((searchUser) => (
                             <UserListItem
@@ -191,7 +183,6 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
                     )}
                 </Box>
             </SwipeableDrawer>
-            <ToastContainer />
         </div>
     );
 };
