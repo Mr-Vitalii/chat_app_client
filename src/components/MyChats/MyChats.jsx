@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { ChatState } from "context/ChatProvider";
 import { instanceAuth, setAuthHeader } from "utils/axios";
@@ -28,15 +28,7 @@ export const MyChats = ({ fetchAgain }) => {
 
     const theme = useTheme();
 
-    const toastOptions = {
-        position: "bottom-right",
-        autoClose: 5000,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-    };
-
-    const fetchChats = async () => {
+    const fetchChats = useCallback(async () => {
         try {
             setAuthHeader(user.token);
 
@@ -44,14 +36,20 @@ export const MyChats = ({ fetchAgain }) => {
 
             setChats(data);
         } catch (error) {
-            toast.error("Failed to Load the chats", toastOptions);
+            toast.error("Failed to Load the chats", {
+                position: "bottom-right",
+                autoClose: 5000,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "dark",
+            });
         }
-    };
+    }, [setChats, user.token]);
 
     useEffect(() => {
         setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
         fetchChats();
-    }, [fetchAgain]);
+    }, [fetchAgain, fetchChats]);
 
     return (
         <>

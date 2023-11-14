@@ -34,7 +34,7 @@ import Lottie from "react-lottie";
 
 import { colors } from "theme";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://chat-app-server-u2qf.onrender.com";
 var socket, selectedChatCompare;
 
 const toastOptions = {
