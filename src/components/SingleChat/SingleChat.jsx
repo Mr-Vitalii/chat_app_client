@@ -34,7 +34,7 @@ import Lottie from "react-lottie";
 
 import { colors } from "theme";
 
-const ENDPOINT = "https://chat-app-server-u2qf.onrender.com";
+const ENDPOINT = "http://localhost:5000";
 var socket, selectedChatCompare;
 
 const toastOptions = {
@@ -164,6 +164,8 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 },
             };
 
+            setNewNotification("");
+
             const notificationData = await instance.post(
                 "notification",
                 {
@@ -173,11 +175,13 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 config,
             );
 
-            setNotification([notificationData.data, ...notification]);
+            if (notificationData) {
+                setNotification([notificationData.data, ...notification]);
+            }
         } catch (error) {
             console.log(error);
         }
-    }, [newNotification, user.token]);
+    }, [newNotification, user.token, setNotification, notification]);
 
     const deleteNotificationsFromCurrentChat = useCallback(async () => {
         try {
@@ -196,7 +200,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }, [sendNotification, newNotification]);
 
     useEffect(() => {
-        if (selectedChat && notification) {
+        if (selectedChat) {
             deleteNotificationsFromCurrentChat();
         }
     }, [deleteNotificationsFromCurrentChat, selectedChat]);
@@ -205,9 +209,19 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket = io(ENDPOINT);
         socket.emit("setup", user);
         socket.on("connected", () => setSocketConnected(true));
-        socket.on("typing", () => setIsTyping(true));
+
+        socket.on("typing", (chatId) => {
+            if (selectedChat && chatId === selectedChat._id) {
+                setIsTyping(true);
+            }
+        });
+
         socket.on("stop typing", () => setIsTyping(false));
-    }, [user]);
+
+        return () => {
+            socket.disconnect(user);
+        };
+    }, [user, selectedChat]);
 
     useEffect(() => {
         fetchMessages();

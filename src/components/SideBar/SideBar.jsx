@@ -59,8 +59,19 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
 
             setLoading(false);
             setSearchResult(data);
+            setSearch("");
         } catch (error) {
             toast.error("Failed to Load the Search Results", toastOptions);
+        }
+    };
+
+    const handleClick = () => {
+        handleSearch();
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter") {
+            handleSearch();
         }
     };
 
@@ -139,11 +150,12 @@ export const SideBar = ({ openSideBar, setOpenSideBar, toggleDrawer }) => {
                                 sx={{ mr: 2 }}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
                             <Button
                                 color="secondary"
                                 variant="contained"
-                                onClick={handleSearch}
+                                onClick={handleClick}
                             >
                                 Go
                             </Button>

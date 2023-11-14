@@ -1,5 +1,3 @@
-import { PaletteOptions } from "@mui/material";
-
 
 export const darkModePalette = (colors) => {
     return {
