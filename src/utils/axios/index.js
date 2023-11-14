@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const instance = axios.create({
-    baseURL: "https://chat-app-server-u2qf.onrender.com/api/",
+    baseURL: "http://localhost:5000/api/",
 });
 
 export const instanceAuth = axios.create({
-    baseURL: "https://chat-app-server-u2qf.onrender.com/api/",
+    baseURL: "http://localhost:5000/api/",
 });
 
 export const setAuthHeader = (token) => {
